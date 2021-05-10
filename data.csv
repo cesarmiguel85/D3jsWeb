@@ -1,9 +1,10 @@
 name,parent
-1. TRENDS & RESEARCH,null
-2. INSIGHT DEFINITION,null
-3. SOLUTION FINDING,null
-4. DEVELOPMENT,null
-5. MARKETING,null
+Innovation,null
+1. TRENDS & RESEARCH,Innovation
+2. INSIGHT DEFINITION,Innovation
+3. SOLUTION FINDING,Innovation
+4. DEVELOPMENT,Innovation
+5. MARKETING,Innovation
 Tech trends,1. TRENDS & RESEARCH
 User insights,1. TRENDS & RESEARCH
 Hotel insights,1. TRENDS & RESEARCH
@@ -40,7 +41,7 @@ Experience maps,Define Insight
 Workshop facilitation,Define Insight
 Consulting on innovation expertise,Define Insight
 Project management (RFP),Ideation
-"Strategyzer canvas (VPC, BMC)",Ideation
+Strategyzer canvas (VPC, BMC),Ideation
 Ideation/Brainstorming workshops,Ideation
 Tech & product challenging,Ideation
 Startup challenges,Ideation
@@ -72,7 +73,6 @@ Product culture,Pilot solution & deployment
 Agile implementation,Pilot solution & deployment
 Investment and deployment of concepts,External Mktg
 External innovation marketing campaigns,External Mktg
-"Positionning, pricing, bundling",Scaling / Making known
+Positionning, pricing, bundling,Scaling / Making known
 Define brand platform,Scaling / Making known
 Single Innovation Intranet,Internal Mktg
-Internal innovation marketing campaigns,Internal Mktg
