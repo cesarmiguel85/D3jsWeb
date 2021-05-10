@@ -10,9 +10,39 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="https://cdn.rawgit.com/newrelic-forks/d3-plugins-sankey/master/sankey.js"></script>
+    <script src="https://cdn.rawgit.com/misoproject/d3.chart/master/d3.chart.min.js"></script>
+    <script src="https://cdn.rawgit.com/q-m/d3.chart.sankey/master/d3.chart.sankey.min.js"></script>
+    <style>
+      body {
+        padding: 10px;
+        min-width: 600px;
+        max-width: 1200px;
+        margin: auto;
+      }
+      #chart {
+        height: 600px;
+        font: 9px sans-serif;
+      }
+      .node rect {
+        fill-opacity: .9;
+        shape-rendering: crispEdges;
+        stroke-width: 0;
+      }
+      .node text {
+        text-shadow: 0 1px 0 #fff;
+      }
+      .link {
+        fill: none;
+        stroke: #000;
+        stroke-opacity: .2;
+      }
+    </style>
 
     <script>
+
+
         //Function to get parameters from GET request when calling URL
 
         function findGetParameter(parameterName) {
@@ -26,31 +56,6 @@
             return result;
         }
 
-        google.charts.load('current', {'packages':['sankey']});
-        google.charts.setOnLoadCallback(drawChart);
-
-        function drawChart(myData) {
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'From');
-            data.addColumn('string', 'To');
-            data.addColumn('number', '');
-            data.addColumn({type: 'string', role: 'tooltip'});
-            data.addRows(allData);
-
-            // Sets chart options.
-            var options = {
-            width: mywidth,
-            height: myheight,
-            sankey: {
-                iterations: 0,
-            }
-            };
-
-            // Instantiates and draws our chart, passing in some options.
-            var chart = new google.visualization.Sankey(document.getElementById('sankey_basic'));
-            chart.draw(data, options);
-        }
-
         //Create arrays with values
         let dataFrom = [];
         let dataTo = [];
@@ -60,12 +65,14 @@
         let mywidth = 800;
         let myheight = 500;
 
-        let allData = [];
+        let allData = {"nodes": [], "links": []};
 
         //Get key to Google Sheet, sheet id and timeline range (ignore header! ex: F2:H100)
         let key = findGetParameter("key");
         let sheet = findGetParameter("sheet");
-        let range = findGetParameter("range");
+        let rangenodes = findGetParameter("rangenodes");
+        let rangelinks = findGetParameter("rangelinks");
+
         try{
             mywidth = parseInt(findGetParameter("width"));
             console.log(mywidth)
@@ -82,46 +89,101 @@
     
         //console.log("https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + range + "&output=tsv")
 
-
+        console.log("https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + rangenodes + "&output=tsv")
         $.ajax({
             type: "GET",
-            url: "https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + range + "&output=tsv",
+            url: "https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + rangenodes + "&output=tsv",
             dataType: "text",
-            success: function(data) {processData(data);}
+            success: function(data) {
+                processDataNodes(data);
+
+                console.log("https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + rangelinks + "&output=tsv")
+
+                $.ajax({
+                    type: "GET",
+                    url: "https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + rangelinks + "&output=tsv",
+                    dataType: "text",
+                    success: function(data2) {
+                        processDataLinks(data2);
+
+                        console.log(JSON.stringify(allData));
+                        drawChart(allData);
+                    }
+
+                });
+            }
         });
 
         //Manually process tsv file (tab separatedd file)
-        function processData(allText) {
+        function processDataNodes(allText) {
             //console.log(allText)
-            var record_num = 4;  // or however many elements there are in each row
             var allTextLines = allText.split(/\n/);
             console.log(allText.length)
             var entries = allTextLines[0].split(/\t/);
             console.log(entries.length)
             var lines = [];
 
-            for (let i = 1; i < allText.length; i++) {
+            var aux = [];
+
+            for (let i = 1; i < allTextLines.length; i++) {
 
                 try {
                     entries = allTextLines[i].split(/\t/);
+
+                    //console.log(entries)
+                    entries[0] = entries[0]
+                    entries[1] = entries[1].replace('\r','')
+
+                    aux.push({"name": entries[1], "id": entries[0]});
+                    //console.log(aux);
+
+                    allData['nodes']=aux;
                 }
                 catch(e) {
+                    console.log(i);
                     break;
                 }
 
-                //console.log(entries)
-                entries[2] = parseInt(entries[2])
-
-                allData.push(entries);
+                
 
             }
 
             //console.log(allData)
+            
+        }
 
-            drawChart(allData)
+        //Manually process tsv file (tab separatedd file)
+        function processDataLinks(myallText) {
+            //console.log(myallText)
+            var myallTextLines = myallText.split(/\n/);
+            console.log(myallText.length)
+            var myentries = myallTextLines[0].split(/\t/);
+            console.log(myentries.length)
+            var lines = [];
 
-            $('#sankey_basic').height(myheight);
-            $('#sankey_basic').width(mywidth);
+            var aux2 = [];
+
+            for (let i = 1; i < myallTextLines.length; i++) {
+
+                try {
+                    myentries = myallTextLines[i].split(/\t/);
+                    
+                    aux2.push({"source": parseInt(myentries[0]), "target": parseInt(myentries[1]), "value": parseInt(myentries[2])});
+                    //console.log(aux2);
+
+                    allData['links']=aux2;
+
+                }
+                catch(e) {
+                    console.log(i);
+                    break;
+                }
+
+                
+
+            }
+
+            //console.log(allData)
             
         }
 
@@ -131,7 +193,54 @@
 
 <body>
 
-    <div id="sankey_basic" ></div>
+    <div id="chart"></div>
+
+
+    <script>
+
+        function drawChart(myData){
+        
+            var colors = {
+                'environment':         '#edbd00',
+                'social':              '#367d85',
+                'animals':             '#97ba4c',
+                'health':              '#f5662b',
+                'research_ingredient': '#3f3e47',
+                'fallback':            '#9f9fa3'
+            };
+        
+            var json = myData;
+
+            var chart = d3.select("#chart").append("svg").chart("Sankey.Path");
+            chart
+            .name(label)
+            .colorNodes('black') 
+            .colorLinks(function(link) {
+                return colors.fallback;
+            })
+            .nodeWidth(15)
+            .nodePadding(5)
+            .spread(true)
+            .iterations(5)
+            .draw(json);
+            function label(node) {
+            return node.name.replace(/\s*\(.*?\)$/, '');
+            }
+            function color(node, depth) {
+            var id = node.id.replace(/(_score)?(_\d+)?$/, '');
+            if (colors[id]) {
+                return colors[id];
+            } else if (depth > 0 && node.targetLinks && node.targetLinks.length == 1) {
+                return color(node.targetLinks[0].source, depth-1);
+            } else {
+                return null;
+            }
+            }
+        
+
+        }
+    </script>
+  
 
 </body>
 
