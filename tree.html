@@ -30,6 +30,10 @@
           stroke: #ccc;
           stroke-width: 2px;
         }
+
+        body {
+            
+        }
         
         </style>
 
@@ -64,6 +68,7 @@
         let key = findGetParameter("key");
         let sheet = findGetParameter("sheet");
         let rangenodes = findGetParameter("rangenodes");
+        let zoom = findGetParameter("zoom");
 
         try{
             mywidth = parseInt(findGetParameter("width"));
@@ -76,7 +81,6 @@
             console.log(myheight)
         } catch(e) {
         }
-        
 
     
         //console.log("https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + range + "&output=tsv")
@@ -374,7 +378,10 @@
 
 
 
-
+<script>
+    console.log("zoom "+zoom)
+    $('body').css({"transform":"scale("+zoom+")"})
+</script>
 </body>
 
     
