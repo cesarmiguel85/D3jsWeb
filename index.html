@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="author" content="">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script>
+        //Function to get parameters from GET request when calling URL
+
+        function findGetParameter(parameterName) {
+            var result = null,
+                tmp = [];
+            var items = location.search.substr(1).split("&");
+            for (var index = 0; index < items.length; index++) {
+                tmp = items[index].split("=");
+                if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+            }
+            return result;
+        }
+
+        google.charts.load('current', {'packages':['sankey']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart(myData) {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'From');
+            data.addColumn('string', 'To');
+            data.addColumn('number', '');
+            data.addColumn({type: 'string', role: 'tooltip'});
+            data.addRows(allData);
+
+            // Sets chart options.
+            var options = {
+            width: mywidth,
+            height: myheight,
+            sankey: {
+                iterations: 0,
+            }
+            };
+
+            // Instantiates and draws our chart, passing in some options.
+            var chart = new google.visualization.Sankey(document.getElementById('sankey_basic'));
+            chart.draw(data, options);
+        }
+
+        //Create arrays with values
+        let dataFrom = [];
+        let dataTo = [];
+        let dataWeight = [];
+        let dataDesc = [];
+
+        let mywidth = 800;
+        let myheight = 500;
+
+        let allData = [];
+
+        //Get key to Google Sheet, sheet id and timeline range (ignore header! ex: F2:H100)
+        let key = findGetParameter("key");
+        let sheet = findGetParameter("sheet");
+        let range = findGetParameter("range");
+        try{
+            mywidth = parseInt(findGetParameter("width"));
+            console.log(mywidth)
+        } catch(e) {
+        }
+
+        try {
+            myheight = parseInt(findGetParameter("height"));
+            console.log(myheight)
+        } catch(e) {
+        }
+        
+
+    
+        //console.log("https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + range + "&output=tsv")
+
+
+        $.ajax({
+            type: "GET",
+            url: "https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + range + "&output=tsv",
+            dataType: "text",
+            success: function(data) {processData(data);}
+        });
+
+        //Manually process tsv file (tab separatedd file)
+        function processData(allText) {
+            //console.log(allText)
+            var record_num = 4;  // or however many elements there are in each row
+            var allTextLines = allText.split(/\n/);
+            console.log(allText.length)
+            var entries = allTextLines[0].split(/\t/);
+            console.log(entries.length)
+            var lines = [];
+
+            for (let i = 1; i < allText.length; i++) {
+
+                try {
+                    entries = allTextLines[i].split(/\t/);
+                }
+                catch(e) {
+                    break;
+                }
+
+                //console.log(entries)
+                entries[2] = parseInt(entries[2])
+
+                allData.push(entries);
+
+            }
+
+            //console.log(allData)
+
+            drawChart(allData)
+
+            $('#sankey_basic').height(myheight);
+            $('#sankey_basic').width(mywidth);
+            
+        }
+
+
+    </script>
+</head>
+
+<body>
+
+    <div id="sankey_basic" ></div>
+
+</body>
+
+</html>
