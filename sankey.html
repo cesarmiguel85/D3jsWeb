@@ -65,8 +65,8 @@
         let dataWeight = [];
         let dataDesc = [];
 
-        let mywidth = 800;
-        let myheight = 500;
+        let mywidth = Math.max($(window).width()-150 || 500);
+        let myheight = Math.max($(window).height()-50 || 300);
 
         let zoom = 1;
 
@@ -79,19 +79,26 @@
         let rangelinks = findGetParameter("rangelinks");
 
         try{
-            mywidth = parseInt(findGetParameter("width"));
-            console.log(mywidth)
+            if (!isNaN(parseInt(findGetParameter("width")))){
+                mywidth = parseInt(findGetParameter("width"));
+                console.log("width param: "+mywidth)
+            }
         } catch(e) {
+            console.log("width: "+mywidth)
         }
 
         try {
-            myheight = parseInt(findGetParameter("height"));
-            console.log(myheight)
+            if (!isNaN(parseInt(findGetParameter("height")))){
+                myheight = parseInt(findGetParameter("height"));
+                console.log("height param:"+myheight)
+            }
         } catch(e) {
+            console.log("height :"+myheight)
         }
         
+        
         try {
-            if (!isNaN(parseInt(findGetParameter("height")))){
+            if (!isNaN(parseInt(findGetParameter("zoom")))){
                 zoom = parseInt(findGetParameter("zoom"));
                 console.log(zoom)
             }

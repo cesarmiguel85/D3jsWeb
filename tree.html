@@ -37,9 +37,8 @@
         
         </style>
 
+<!-- START: GET PARAMS-->
     <script>
-
-
         //Function to get parameters from GET request when calling URL
 
         function findGetParameter(parameterName) {
@@ -59,8 +58,11 @@
         let dataWeight = [];
         let dataDesc = [];
 
-        let mywidth = 800;
-        let myheight = 500;
+        let mywidth = Math.max($(window).width()-50 || 500);
+        let myheight = Math.max($(window).height()-50 || 300);
+
+        let zoom = 1;
+
 
         let allData = {"nodes": [], "links": []};
 
@@ -68,86 +70,43 @@
         let key = findGetParameter("key");
         let sheet = findGetParameter("sheet");
         let rangenodes = findGetParameter("rangenodes");
-        let zoom = findGetParameter("zoom");
+
+        try {
+            if (!isNaN(parseInt(findGetParameter("zoom")))){
+                zoom = parseInt(findGetParameter("zoom"));
+                console.log(zoom)
+            }
+        } catch(e) {
+        }
 
         try{
-            mywidth = parseInt(findGetParameter("width"));
-            console.log(mywidth)
+            if (!isNaN(parseInt(findGetParameter("width")))){
+                mywidth = parseInt(findGetParameter("width"));
+                console.log("width param: "+mywidth)
+            }
         } catch(e) {
+            console.log("width: "+mywidth)
         }
 
         try {
-            myheight = parseInt(findGetParameter("height"));
-            console.log(myheight)
+            if (!isNaN(parseInt(findGetParameter("height")))){
+                myheight = parseInt(findGetParameter("height"));
+                console.log("height param:"+myheight)
+            }
         } catch(e) {
+            console.log("height :"+myheight)
         }
+        
+    </script>
+<!-- END: GET PARAMS-->
 
-    
-        //console.log("https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + range + "&output=tsv")
+<!-- START: GET & PROCESS DATA + PLOT GRAPH -->
+    <script>
+        var treeData = [];
 
         console.log("https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + rangenodes + "&output=csv")
-        $.ajax({
-            type: "GET",
-            url: "https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + rangenodes + "&output=csv",
-            dataType: "text",
-            success: function(data) {
-                //processDataNodes(data);
-                
-                //drawChart("data.csv");
-             
-            }
-        });
-
-        //Manually process tsv file (tab separatedd file)
-        function processDataNodes(allText) {
-            //console.log(allText)
-            var allTextLines = allText.split(/\n/);
-            console.log(allText.length)
-            var entries = allTextLines[0].split(/\t/);
-            console.log(entries.length)
-            var lines = [];
-
-            var aux = [];
-
-            for (let i = 1; i < allTextLines.length; i++) {
-
-                try {
-                    entries = allTextLines[i].split(/\t/);
-
-                    //console.log(entries)
-                    entries[0] = entries[0]
-                    entries[1] = entries[1].replace('\r','')
-
-                    aux.push({"name": entries[1], "id": entries[0]});
-                    //console.log(aux);
-
-                    allData['nodes']=aux;
-                }
-                catch(e) {
-                    console.log(i);
-                    break;
-                }
-
-                
-
-            }
-
-            //console.log(allData)
-            
-        }
-
-
-
-    </script>
-
-<script>
-
-    var treeData = [];
-
     
-    
-        
-        d3.csv("data.csv", function(error, data) {
+        d3.csv("https://docs.google.com/spreadsheets/u/0/d/" + key + "/pub?gid=" + sheet + "&range=" + rangenodes + "&output=csv", function(error, data) {
 
             // *********** Convert flat data into a nice tree ***************
             // create a name: node map
@@ -174,15 +133,13 @@
 
             console.log(JSON.stringify(treeData))
 
-
-
-
             treeData = treeData[0]
 
 
 
+            //PLOT GRAPH
 
-            var margin = {top: 20, right: 90, bottom: 30, left: 90},
+            var margin = {top: 50, right: 90, bottom: 50, left: 90},
                 width = mywidth - margin.left - margin.right,
                 height = myheight - margin.top - margin.bottom;
             
@@ -190,6 +147,7 @@
             // appends a 'group' element to 'svg'
             // moves the 'group' element to the top left margin
             var svg = d3.select("body").append("svg")
+                .attr("id", "chart")
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -367,21 +325,66 @@
 
         });
 
-    
+    </script>
 
+<!-- START: GET & PROCESS DATA + PLOT GRAPH -->
 
-</script>
 </head>
 <body>
 
 
-
-
-
+<!-- START: APPLY INITIAL ZOOM IF PASSED-->
 <script>
     console.log("zoom "+zoom)
     $('body').css({"transform":"scale("+zoom+")"})
 </script>
+<!-- END: APPLY INITIAL ZOOM IF PASSED-->
+
+
+
+<!-- START: ZOOM BUTTONS AND FUNCTIONNALITY-->
+<style>
+    .buttonzoom {
+        width:20px;
+        height:20px;
+    }
+
+    #buttonszoom {
+        display: block;
+        position: absolute;
+        top: 0px;
+        left:0px;
+        width:50px;
+        height:20px;
+        z-index: 1000;
+        background-color: rgba(255, 255, 255, 0.61);
+        padding:4px;
+    }
+</style>
+<script>
+
+    function changeZoom(increment) {
+        zoom=zoom+increment;
+        console.log("zoom: "+zoom);
+        $('#chart').css({"transform":"scale("+zoom+")","transform-origin":"0 0 0"})
+    }
+
+</script>
+<div id="buttonszoom">
+    
+    <table style="width:50px; border-collapse: collapse; border:0px;">
+        <tr style="border-collapse: collapse; border:0px;">
+            <td >
+                <img src="minus.png" onclick="javascript:changeZoom(-0.1)" alt="De-zoom" class="buttonzoom">
+            </td>
+            <td >
+                <img src="plus.png" onclick="javascript:changeZoom(0.1)" alt="Zoom" class="buttonzoom">
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- END: ZOOM BUTTONS AND FUNCTIONNALITY-->
+
 </body>
 
     
