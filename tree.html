@@ -23,16 +23,12 @@
           stroke-width: 3px;
         }
     
-        .node text { font: 12px sans-serif; }
+        .node text { font: 11px sans-serif; }
     
         .link {
           fill: none;
           stroke: #ccc;
           stroke-width: 2px;
-        }
-
-        body {
-            
         }
         
         </style>
@@ -131,7 +127,7 @@
                 }
             });
 
-            console.log(JSON.stringify(treeData))
+            //console.log(JSON.stringify(treeData))
 
             treeData = treeData[0]
 
@@ -175,11 +171,11 @@
             
             // Collapse the node and all it's children
             function collapse(d) {
-            if(d.children) {
-                d._children = d.children
-                d._children.forEach(collapse)
-                d.children = null
-            }
+                if(d.children) {
+                    d._children = d.children
+                    d._children.forEach(collapse)
+                    d.children = null
+                }
             }
             
             function update(source) {
