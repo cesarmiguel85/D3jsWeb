@@ -17,6 +17,7 @@ For now only 2 graps:
 
 ## COLLAPSIBLE TREE GRAPH (tree.html)
 Format: ![Timeline example](/image_tree.jpg)
+After third level: collapsed by default.
 
 ### GET input parameters
 * key: google sheet key id 
