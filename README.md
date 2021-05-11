@@ -4,9 +4,7 @@ The goal is to integrate into datastudio or powerpoint using a WebPreview add-in
 
 For now only 2 graps:
 * Collapsible tree graph
-Format: ![Timeline example](/image_tree.jpg)
 * Sankey graph
-Format: ![Timeline example](/image_sankey.jpg)
 
 ## Technology
 * HTML/CSS
@@ -17,7 +15,7 @@ Format: ![Timeline example](/image_sankey.jpg)
 
 
 
-## COLLAPSIBLE TREE GRAPH
+## COLLAPSIBLE TREE GRAPH (tree.html)
 Format: ![Timeline example](/image_tree.jpg)
 
 ### GET input parameters
@@ -40,7 +38,7 @@ https://cesarmiguel85.github.io/D3jsWeb/tree.html?key=1RmLSPsRnB-s93FkFDrZnr5rGe
 
 
 
-## SANKEY GRAPH
+## SANKEY GRAPH (sankey.html)
 Format: ![Timeline example](/image_sankey.jpg)
 
 ### GET input parameters
